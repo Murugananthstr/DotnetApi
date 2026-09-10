@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Registers API metadata needed by Swagger.
 builder.Services.AddEndpointsApiExplorer();
+var apiScope = builder.Configuration["OAuth:Scope"]!;
 
 // Registers JWT bearer authentication as the default authentication scheme.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -44,7 +45,8 @@ builder.Services.AddSwaggerGen(options =>
                 // Defines the OAuth scope requested during sign-in.
                 Scopes = new Dictionary<string, string>
                 {
-                    ["openid"] = "Sign in and read your identity"
+                    ["openid"] = "Sign in and read your identity",
+                    [apiScope] = "Read data from DotnetApi"
                 }
             }
         }
@@ -64,8 +66,8 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "oauth2"
                 }
             },
-            // Applies the scheme without requiring a specific scope for every operation.
-            Array.Empty<string>()
+            // Requires the API's delegated read scope for protected operations.
+            new[] { apiScope }
         }
     });
 });
