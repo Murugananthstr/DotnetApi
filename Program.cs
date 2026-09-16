@@ -75,8 +75,8 @@ builder.Services.AddSwaggerGen(options =>
 // Builds the configured web application.
 var app = builder.Build();
 
-// Exposes Swagger only while running in the Development environment.
-if (app.Environment.IsDevelopment())
+// Exposes Swagger in Development or when explicitly enabled for a test deployment.
+if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled"))
 {
     // Serves the generated OpenAPI JSON document.
     app.UseSwagger();
