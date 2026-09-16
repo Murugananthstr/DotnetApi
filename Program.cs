@@ -95,6 +95,9 @@ app.UseAuthentication();
 // Enforces [Authorize] attributes after authentication has identified the caller.
 app.UseAuthorization();
 
+// Provides a response for the App Service root URL instead of IIS directory browsing.
+app.MapGet("/", () => Results.Ok(new { status = "healthy" }));
+
 // Maps controller routes such as /WeatherForecast and /api/oauth-test/me.
 app.MapControllers();
 
