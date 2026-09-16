@@ -83,6 +83,8 @@ if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swa
     // Serves the interactive Swagger UI.
     app.UseSwaggerUI(options =>
     {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DotnetApi v1");
         // Identifies the Entra application registration used by Swagger UI.
         options.OAuthClientId(builder.Configuration["OAuth:ClientId"]!);
         // Sends a code verifier so Entra can validate the authorization-code exchange.
