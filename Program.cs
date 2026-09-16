@@ -78,6 +78,40 @@ var app = builder.Build();
 // Exposes Swagger in Development or when explicitly enabled for a test deployment.
 if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled"))
 {
+    // Handle the OAuth callback before Swagger UI's embedded-resource middleware.
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.Equals("/swagger/oauth2-redirect.html", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            await context.Response.WriteAsync("""
+                <!doctype html>
+                <html lang="en-US">
+                <head><title>Swagger UI OAuth2 Redirect</title></head>
+                <body>
+                    <script>
+                        'use strict';
+                        function run() {
+                            var oauth2 = window.opener.swaggerUIRedirectOauth2();
+                            var qp = new URLSearchParams(window.location.search);
+                            var code = qp.get('code');
+                            var state = qp.get('state');
+                            if (oauth2.callback) {
+                                oauth2.callback({ code: code, state: state, response: window.location.href });
+                            }
+                            window.close();
+                        }
+                        window.onload = run;
+                    </script>
+                </body>
+                </html>
+                """);
+            return;
+        }
+
+        await next();
+    });
+
     // Serves the generated OpenAPI JSON document.
     app.UseSwagger();
     // Serves the interactive Swagger UI.
